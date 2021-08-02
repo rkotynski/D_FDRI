@@ -55,7 +55,7 @@ class DFDRI:
             print('Default parameters:')
             print(f'dim={dim}\t-image resolution')
             print(f'p={p}\t\t\t\t-order of the finite difference operator')
-            print(f'p+m={p+m}\t\t\t-number of binary patterns used to measure the 0th spatial freq.')
+            print(f'm={m}\t\t\t\t- (p+m) is the number of binary patterns used to measure the 0th spatial freq.')
             print(f'μ={μ}, ϵ={ϵ}\t-FDRI parameters')
             print(f'CR={CR}\t\t\t-compression ratio')
         

@@ -40,15 +40,16 @@ from dfdri import DFDRI
 from copy import copy
 
 m=7
-p=2
+p=1
 μ=0.5
-ϵ=1e-11
-CR=0.1 # for 256x256 images, CR=0.03 requires 8GB RAM, CR=0.1 requires 32GB RAM, etc
+ϵ=1e-8
+CR=0.03 # for 256x256 images, CR=0.03 requires 8GB RAM, CR=0.1 requires 32GB RAM, etc
 dim=(256,256)
 fname=f'd_fdri_cr{round(CR*100)}proc_m{m}_p{p}_mu{μ}_eps{ϵ}.mat'
 
-print('\nI. PREPARATION STAGE\n')
+
 dfdri=DFDRI(m=m, p=p, μ=μ, ϵ=ϵ,CR=CR,dim=dim,verbose=True)
+print('\nI. PREPARATION STAGE\n')
 if os.path.isfile(fname):
     print(f'Reading precalculated matrices from file {fname}')
     data=io.loadmat(fname)
@@ -56,10 +57,10 @@ if os.path.isfile(fname):
     Pg=data['P']
     print('Done')
 else:    
-    M_dct,SM=dfdri.dct_sampling_functions(CR=CR)
-    A=dfdri.auxiliary_matrix_a(m=m,p=p)
-    M=dfdri.binary_measurement_matrix(M_dct,A)
-    Pg=dfdri.d_fdri(Mbin=M, p=p,μ=μ,ϵ=ϵ)
+    M_dct,SM=dfdri.dct_sampling_functions(CR=CR) # calculate the continuous low-frequency DCT patterns
+    A=dfdri.auxiliary_matrix_a(m=m,p=p) # find an auxilliary matrix A_m^p,  see https://doi.org/10.1364/OE.433199 
+    M=dfdri.binary_measurement_matrix(M_dct,A) # binarize the DCT patterns, and combine all the sampling patterns into the binary measurement matrix M
+    Pg=dfdri.d_fdri(Mbin=M, p=p,μ=μ,ϵ=ϵ) # calculate the reconstruction matrix (takes a lot of time)
     
     print('Saving the measurement and reconstruction matrices to a mat-file (which may be e.g. read in Matlab)')
     io.savemat(fname, {'M':M,'P':Pg,'p':p,'m':m,'eps':ϵ,'mu':μ},do_compression=True,appendmat=True)
@@ -67,30 +68,8 @@ else:
 Rec1=dfdri.reconstruct(Pg,channel=1)
 Rec2=dfdri.reconstruct(Pg,channel=2)
 
-'''
-print('Estimating image reconstruction speed (results may vary a lot, depending on linking numpy with openblas/mkl)')
-iter=30
-x=[]
-y=[]
-x0=[]
-for i in range(iter):
-    x.append(255*np.array(np.random.rand(M.shape[1]),dtype=np.single))
-    y.append(M@x[i]) # compressive measurement
-
-start = datetime.datetime.now()
-
-for i in range(iter):
-    x0.append(Rec1(y[i])) # image reconstruction
-end = datetime.datetime.now()
-dt=end-start
-dt=dt.microseconds/iter/1e6
-print(f'Average reconstruction time ({iter} iterations)')
-print(f"dt={round(1e3*dt,2)}ms f={round(1/dt,1)}Hz, CR={round(100*np.prod(y[0].shape)/np.prod(x0[0].shape),3)}%")
 
 
-
-
-'''
 print("Current Working Directory " , os.getcwd())
 
 tstimg_path='tst_images/' # path to test images
@@ -114,8 +93,9 @@ for testnr in range(len(tst_images)):
     x0=Rec1(y) # This line of code reconstructs the image from the compressive measurement y[testnr]
     t1 = datetime.datetime.now()
     dt=(t1-t0).microseconds/1e3
-    print('Done...\n'); 
     psnr=dfdri.psnr(x,x0)
+    print(f'Reconstruction time: {dt}ms, PSNR={round(psnr,2)}dB\nDone...\n'); 
+    
     fig,(ax1,ax2)=plt.subplots(1,2,figsize=(8,4))
 
     ax1.semilogx(y,'.b')
