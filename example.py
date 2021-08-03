@@ -42,7 +42,7 @@ from copy import copy
 m=7
 p=1
 μ=0.5
-ϵ=1e-8
+ϵ=5e-9
 CR=0.03 # for 256x256 images, CR=0.03 requires 8GB RAM, CR=0.1 requires 32GB RAM, etc
 dim=(256,256)
 fname=f'd_fdri_cr{round(CR*100)}proc_m{m}_p{p}_mu{μ}_eps{ϵ}.mat'
@@ -56,12 +56,12 @@ if os.path.isfile(fname):
     M=data['M']
     Pg=data['P']
     print('Done')
+    SM=None
 else:    
     M_dct,SM=dfdri.dct_sampling_functions(CR=CR) # calculate the continuous low-frequency DCT patterns
     A=dfdri.auxiliary_matrix_a(m=m,p=p) # find an auxilliary matrix A_m^p,  see https://doi.org/10.1364/OE.433199 
     M=dfdri.binary_measurement_matrix(M_dct,A) # binarize the DCT patterns, and combine all the sampling patterns into the binary measurement matrix M
     Pg=dfdri.d_fdri(Mbin=M, p=p,μ=μ,ϵ=ϵ) # calculate the reconstruction matrix (takes a lot of time)
-    
     print('Saving the measurement and reconstruction matrices to a mat-file (which may be e.g. read in Matlab)')
     io.savemat(fname, {'M':M,'P':Pg,'p':p,'m':m,'eps':ϵ,'mu':μ},do_compression=True,appendmat=True)
     print('Done')
@@ -70,11 +70,14 @@ Rec2=dfdri.reconstruct(Pg,channel=2)
 
 
 
+if SM is not None:
+    fig,ax=plt.subplots(1,1,figsize=(5,5))
+    ax.imshow(np.double(SM),origin='upper')
+    ax.set_title('Selected DCT patterns')
 print("Current Working Directory " , os.getcwd())
 
 tstimg_path='tst_images/' # path to test images
 tst_images=['lena512.bmp','bird512.jpg','fox512.gif','FUWchart512.jpg']
-
 print('\nII. COMPRESSIVE MEASUREMENTS\n')
 
 
