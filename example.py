@@ -42,7 +42,7 @@ from copy import copy
 m=7
 p=1
 μ=0.5
-ϵ=5e-9
+ϵ=1e-7
 CR=0.03 # for 256x256 images, CR=0.03 requires 8GB RAM, CR=0.1 requires 32GB RAM, etc
 dim=(256,256)
 fname=f'd_fdri_cr{round(CR*100)}proc_m{m}_p{p}_mu{μ}_eps{ϵ}.mat'
@@ -71,7 +71,7 @@ Rec2=dfdri.reconstruct(Pg,channel=2)
 
 
 if SM is not None:
-    fig,ax=plt.subplots(1,1,figsize=(5,5))
+    fig,ax=plt.subplots(1,1,figsize=(3,3))
     ax.imshow(np.double(SM),origin='upper')
     ax.set_title('Selected DCT patterns')
 print("Current Working Directory " , os.getcwd())
@@ -80,7 +80,7 @@ tstimg_path='tst_images/' # path to test images
 tst_images=['lena512.bmp','bird512.jpg','fox512.gif','FUWchart512.jpg']
 print('\nII. COMPRESSIVE MEASUREMENTS\n')
 
-
+fig,ax=plt.subplots(len(tst_images),3,figsize=(12,5*len(tst_images)))
 for testnr in range(len(tst_images)): 
     fname=f'{tstimg_path}{tst_images[testnr]}'
     print(f'1. Preparing scene {fname}\n');
@@ -99,12 +99,16 @@ for testnr in range(len(tst_images)):
     psnr=dfdri.psnr(x,x0)
     print(f'Reconstruction time: {dt}ms, PSNR={round(psnr,2)}dB\nDone...\n'); 
     
-    fig,(ax1,ax2)=plt.subplots(1,2,figsize=(8,4))
-
+    ax0=ax[testnr,0]
+    ax1=ax[testnr,1]
+    ax2=ax[testnr,2]
+    ax0.imshow(x.reshape(dim),cmap='cubehelix')
+    ax0.set_title(f'Ground truth')
     ax1.semilogx(y,'.b')
     ax1.semilogx(y[:p+m],'.m')
-    ax1.set_xlabel(f'{M.shape[0]} binary patterns')
-    ax1.set_title(f'Compressive measurement\nCR={round(100*M.shape[0]/M.shape[1],1)}%')
-    ax2.imshow(x0.reshape(dim),cmap='gray')
+    ax1.set_xlabel(f'{M.shape[0]} binary patterns')    
+    ax1.set_title(f'Compr. measurem. CR={round(100*M.shape[0]/M.shape[1],1)}%')
+    ax1.set_aspect('auto')
+    ax2.imshow(x0.reshape(dim),cmap='cubehelix')
     ax2.set_title(f'Reconstructed image\nPSNR={round(psnr,1)}dB\n reconstr. time  dt={round(dt,1)}ms')
- 
+fig.savefig(f'reconstr_{round(100*CR,1)}proc.jpg')
