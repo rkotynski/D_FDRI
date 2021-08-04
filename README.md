@@ -1,5 +1,5 @@
 # D-FDRI - an efficient, fast, single-step reconstruction method for single-pixel imaging
-
+A. Pastuszczak, R. Stojek, P. Wróbel, and R. Kotyński, Aug 2021, https://github.com/rkotynski/D_FDRI/
 
 
 **Single pixel imaging (SPI)** is an indirect image aquisition technique which enables to capture an image using a single detector rather than with a usual camera containing a pixel array and sophisticated imaging optics. SPI is especially usefull for multispectral imaging, or imaging in the IR or THz ranges, imaging through scattering media etc. Usually image reconstruction from the indirect measurement is computationally intensive. It is ofnen based on the methods of compressive sensing (CS).
@@ -19,9 +19,12 @@ Basic features of D-FDRI are:
 
 **Citation:** <em>A. Pastuszczak, R. Stojek, P. Wróbel, and R. Kotyński, "Differential real-time single-pixel imaging with Fourier domain regularization: applications to VIS-IR imaging and polarization imaging," Opt. Express 29, 26685-26700 (2021).  
  https://doi.org/10.1364/OE.433199 (open access)  
-**Download code:** https://github.com/rkotynski/D_FDRI/
-  
--- A typical output from the example.py for compression ratios of CR=2% and CR=20%  is:
+**Download:** https://github.com/rkotynski/D_FDRI/  
+**Contact:** apast@igf.fuw.edu.pl, rafalk@fuw.edu.pl  
+**Acknowledgement:** National Science Center (Poland), UMO-2017/27/B/ST7/00885 (RS,PW,RK), UMO-2019/35/D/ST7/03781 (AP).  
+ 
+ 
+**A typical output from the example.py for compression ratios of CR=2% and CR=20%  is:**
 ![Image reconstruction at CR=20%](reconstr_2.0proc.jpg?raw=true "D-FDRI image reconstruction at CR=2%")
 ![Image reconstruction at CR=20%](reconstr_20.0proc.jpg?raw=true "D-FDRI image reconstruction at CR=20%")
  
