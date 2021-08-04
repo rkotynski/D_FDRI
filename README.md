@@ -17,8 +17,8 @@ Basic features of D-FDRI are:
 6. **The DAQ may be operated at a reduced bit-resolution** - by using binary patterns with the average number of pixels in the "on"-state varied randomly within a given range, we keep the detection signal approximatley within an assumed range. This improves the noise robustness of the signal, in particular to discretization noise of the DAQ.
 
 **Citation:** <em>A. Pastuszczak, R. Stojek, P. Wróbel, and R. Kotyński, "Differential real-time single-pixel imaging with Fourier domain regularization: applications to VIS-IR imaging and polarization imaging," Opt. Express 29, 26685-26700 (2021).  
- https://doi.org/10.1364/OE.433199 (open access)
-
+ https://doi.org/10.1364/OE.433199 (open access)  
+**Download code:** https://github.com/rkotynski/D_FDRI/
   
 -- A typical output from the example.py file is:
 
