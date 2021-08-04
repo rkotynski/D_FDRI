@@ -1,4 +1,4 @@
-# D_FDRI - an efficient, fast, single-step reconstruction method for single-pixel imaging
+# D-FDRI - an efficient, fast, single-step reconstruction method for single-pixel imaging
 
 
 
