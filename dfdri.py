@@ -4,14 +4,18 @@
 """
 Created on 27 Jul 2021
 
-This D-FDRI code in Python enables to generate a measurement matrix with sampling patterns and a reconstruction matrix for singlepixel imaging (SPI)
-The description of D-FDRI is included in the following paper. If you find the code useful, please cite this work:
 
-Anna Pastuszczak, Rafał Stojek, Piotr Wróbel, and Rafał Kotyński, "Differential real-time single-pixel imaging with Fourier domain regularization - applications to VIS-IR imaging and polarization imaging,"
-Optics Express, https://doi.org/10.1364/OE.433199 (open accesss)
+This D-FDRI code in Python enables to generate a measurement matrix with sampling patterns and a reconstruction matrix for single pixel imaging (SPI)
+The description of D-FDRI is included in the following paper and at https://github.com/rkotynski/D_FDRI. If you find the code useful, please cite this work:
+This file defines the dfdri module. See example.py for usage instructions. 
+
+Citation: [1] A. Pastuszczak, R. Stojek, P. Wróbel, and R. Kotyński, "Differential real-time single-pixel imaging with Fourier domain regularization: applications to VIS-IR imaging and polarization imaging," Opt. Express 29, 26685-26700 (2021).
+https://doi.org/10.1364/OE.433199 (open access)
+Download: https://github.com/rkotynski/D_FDRI/
+Contact (authors): anna.pastuszczak@fuw.edu.pl, rafal.stojek@fuw.edu.pl, piotr.wrobel@fuw.edu.pl, rafal.kotynski@fuw.edu.pl
+Acknowledgement: National Science Center (Poland), UMO-2017/27/B/ST7/00885 (RS,PW,RK), UMO-2019/35/D/ST7/03781 (AP).
 
 
-@author: anna.pastuszczak@fuw.edu.pl, rafal.stojek@fuw.edu.pl, piotr.wrobel@fuw.edu.pl, rafal.kotynski@fuw.edu.pl
 
 
   GPL LICENSE INFORMATION
@@ -32,10 +36,24 @@ Optics Express, https://doi.org/10.1364/OE.433199 (open accesss)
 
 
 import numpy as np
-from scipy import fft,random,linalg,io
+from scipy import fft,linalg
 
 class DFDRI:
     def __init__(self,μ=0.5,ϵ=1e-7,p=1,m=7,dim=(256,256),CR=0.03,verbose=True):
+        '''
+         Initialize the object and set the defauld values of parameters controlling D-FDRI
+
+        Parameters
+        ----------
+        μ,ϵ,p, m : D-FDRI parameters (See sect. 2.2 of ref. [1]).
+                p=1,2 is the order of finite difference operator D
+                m is an odd intteger defining the number of pixel areas used to evaluate the zeroth spatial frequency of the image
+                μ,ϵ describe the properties of generalized inversion        
+        dim : dimension of images (tuple). The default is (256,256)
+        CR : Compression ratio. The default is 3%.
+        verbose : bool. The default is True. Determins whether to print comments during program execution
+        '''
+       
         self.μ=μ
         self.ϵ=ϵ
         self.p=p
@@ -76,6 +94,26 @@ class DFDRI:
             
     
     def auxiliary_matrix_a(self,p=None, m=None,use_precalculated=True,maxiter=5000):
+        '''
+        Calculate and return an auxilliary matrix A (See sect. 2.1 of Ref [1])
+        
+
+        Parameters
+        ----------
+        p : =1 or 2, order of the differential operator
+            The default is None (the class default).
+        m : an odd int, the returned matrix is of size [p+m,m]
+            The default is None (the class default).
+        use_precalculated : bool, check if a precalculated matrix is available
+            DESCRIPTION. The default is True.
+        maxiter : number of iterations in evaluation of A
+            The default is 5000.
+
+        Returns
+        -------
+        A : auxiliary binary matrix which columns represent subsets of pixels (See sect. 2.1 of Ref [1]).
+
+        '''
         if p is None:
             p=p=self.p
         if m is None:
@@ -97,10 +135,10 @@ class DFDRI:
             if (p,m) in A_precalculated.keys():
                 A=np.array(A_precalculated[p,m])
                 if self.verbose:
-                    print(f'Using the precalculated differential DC-decomposition matrix A\n{A}')
+                    print(f'Using the precalculated auxiliary differential DC-decomposition matrix A\n{A}')
                 return A
         if self.verbose:
-            print(f'Preparing the differential DC-decomposition matrix A (m={m},p={p})')
+            print(f'Preparing the auxiliary differential DC-decomposition matrix A (m={m},p={p})')
         DIFF=self.differential_operator(p)              
     
         A=[]
@@ -138,11 +176,25 @@ class DFDRI:
         '''
         Create a matrix M with rows containg low-frequency continuous-valued 2d DCT functions
         The DCT functions are stored in rows of matrix M, and their locations in the 2D DCT basis are
-        indicated by the logical matrix SM    
+        indicated by the logical matrix SM. The returned matrix does not contain the zeroth frequency pattern
         The compression ratio CR may be passed to the function instead of the number of rows
         If binarize is True then a binarization with a randomly varied threshold is applied to M
         Rhe range of threshold values is governed by the value of m
+
+        Parameters
+        ----------
+        dim : size of DCT basis
+        rows : number of patterns to create
+        CR : compression ratio (may override rows)
+
+        Returns
+        -------
+        M :a real valued matrix M with rows containg low-frequency continuous-valued 2d DCT functions
+        SM:a binary selection matrix pointing to the positions of the returned functions in the DCT basis
+
         '''
+        if self.verbose:
+                        print('Calculating the real-valued DCT patterns')        
         if dim is None:
             dim=self.dim
         cols=np.prod(dim)
@@ -168,12 +220,35 @@ class DFDRI:
     
     
     def binary_measurement_matrix(self,M_dct=None,A=None):
+        '''
+        Calculate the final binary measurement matrix M consisting of 
+        (p+m) binary patterns that encode differentialy the zeroth spatial frequency of the measurement
+        followed by the binarized rows of matrix M_dct
+        
+        
+        Note: other kinds of patterns than the DCT basis could be also passed to this function
+        
+        
+
+        Parameters
+        ----------
+        M_dct : the real-valued matrix with DCT patterns
+        A : the auxiliary matrix encoding the measurement of the zeroth spatial frequency
+
+        Returns
+        -------
+        M : the final binary measurement matrix with all of the patterns that will be displayed on the DMD stored in rows.
+
+        '''
+        
         if A is None:
             A=self.auxiliary_matrix_a()
         if M_dct is None:
             if self.M_dct is None:
                 self.dct_sampling_functions()
             M_dct=self.M_dct
+        if self.verbose:
+                        print('Calculating the final binary measurement matrix')
         m=A.shape[1]
         p=A.shape[0]-m
         k_dct=M_dct.shape[0]
@@ -191,6 +266,25 @@ class DFDRI:
     
         
     def d_fdri(self,Mbin=None, p=None,dim=None,μ=None, ϵ=None, tol=1e-7):
+        '''
+        Calculate the reconstruction matrix Pg (See Eq. (6) of Ref. [1])
+
+        Parameters
+        ----------
+        Mbin : the measurement matrix (M in Eq. (6))
+        p : =1,2 order of the finite difference operator
+
+        dim : Tpattern dimensions
+
+        μ : parameter of FDRI controlling the shape of the spatial spectrum
+        ϵ : parameter of FDRI controlling noise robustness
+        tol : tolerance in the calculation of the pseudoinverse (defaults to 1e-7).
+
+        Returns
+        -------
+        Pg: the reconstruction matrix (See Eq. (6))
+
+        '''
         if Mbin is None:
             if self.Mbin is None:
                 self.binary_measurement_matrix()
@@ -203,6 +297,8 @@ class DFDRI:
            μ=self.μ
         if ϵ is None:
            ϵ=self.ϵ  
+        if self.verbose:
+            print('Calculating the reconstruction matrix (may take a lot of time)')
         DIFF=self.differential_operator(p)
         M=DIFF(Mbin.reshape(-1,np.prod(dim)))
         Ny,Nx=dim
@@ -225,10 +321,27 @@ class DFDRI:
         inv_S[I]=0
         P=np.array(FILT_L((V.T.conj()*inv_S.reshape(-1))@U.T.conj()).real)
         self.Pg=np.array(DIFF(P,right=True),dtype=np.single,order='F')
+        if self.verbose:
+            print('Done')
         return self.Pg
         
     
     def reconstruct(self,P=None,channel=1):
+        '''
+        Calculate a function responsible for image reconstruction (Eq. (11) in [1])
+        This function calculates a matrix-vector product with negative values replaced by zeros
+
+        Parameters
+        ----------
+        P : the reconstruction matrix (Pg in Eq. (11))
+        channel : 1 or 2, the direct channel (1) or the complementary channel (2) 
+            (denoted as l in Eq. (11))
+
+        Returns
+        -------
+        a function that evaluates Eq. (11) in [1] responsible for image reconstruction
+
+        '''
         if P is None:
             P=self.Pg
         def relu(x):
@@ -250,6 +363,7 @@ class DFDRI:
 
 def main():
     DFDRI(verbose=True)
+    print('See example.py for usage instructions.')
 
 if __name__ == "__main__":
     main()
