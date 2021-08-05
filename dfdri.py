@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
 """
-Created on 27 Jul 2021
+Created on 27 Jul 2021, updated Aug 5 2021
 
 
 This D-FDRI code in Python enables to generate a measurement matrix with sampling patterns and a reconstruction matrix for single pixel imaging (SPI)

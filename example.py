@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on 27 Jul 2021
+Created on 27 Jul 2021, updated Aug 5 2021
 
 This D-FDRI code in Python enables to generate a measurement matrix with sampling patterns and a reconstruction matrix for single pixel imaging (SPI)
 The description of D-FDRI is included in the following paper. 
@@ -54,7 +54,7 @@ m=7
 p=1
 μ=0.5
 ϵ=1e-7
-CR=0.03 # for 256x256 images, CR=0.03 requires 8GB RAM, CR=0.1 requires 32GB RAM, for larger dimensions use >=128GB
+CR=0.03 #Compression ratio. For 256x256 images, CR=0.03 requires 8GB RAM, CR=0.1 requires 32GB RAM, for larger dimensions use >=128GB
 dim=(256,256)
 fname=f'd_fdri_cr{round(CR*100)}proc_m{m}_p{p}_mu{μ}_eps{ϵ}.mat' # save the matrices to a mat-file
 
@@ -111,16 +111,19 @@ for testnr in range(len(tst_images)):
     psnr=dfdri.psnr(x,x0)
     print(f'Reconstruction time: {dt}ms, PSNR={round(psnr,2)}dB\nDone...\n'); 
     
+    vmax=max(x0.max(),x.max())
+    vmin=min(x0.min(),x.min())
+    cmap='bone'#'cubehelix','cividis'#
     ax0=ax[testnr,0]
     ax1=ax[testnr,1]
     ax2=ax[testnr,2]
-    ax0.imshow(x.reshape(dim),cmap='cubehelix')
+    ax0.imshow(x.reshape(dim),cmap=cmap,vmin=vmin,vmax=vmax)
     ax0.set_title('Ground truth')
     ax1.semilogx(y,'.b')
     ax1.semilogx(y[:p+m],'.m')
     ax1.set_xlabel(f'{M.shape[0]} binary patterns')    
     ax1.set_title(f'Compr. measurem. CR={round(100*M.shape[0]/M.shape[1],1)}%')
     ax1.set_aspect('auto')
-    ax2.imshow(x0.reshape(dim),cmap='cubehelix')
+    ax2.imshow(x0.reshape(dim),cmap=cmap,vmin=vmin,vmax=vmax)
     ax2.set_title(f'Reconstructed image\nPSNR={round(psnr,1)}dB\n reconstr. time  dt={round(dt,1)}ms')
 fig.savefig(f'reconstr_{round(100*CR,1)}proc.jpg')
