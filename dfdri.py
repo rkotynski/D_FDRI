@@ -36,7 +36,7 @@ Acknowledgement: National Science Center (Poland), UMO-2017/27/B/ST7/00885 (RS,P
 
 
 import numpy as np
-from scipy import fft,linalg
+from scipy import fft,linalg,signal
 
 class DFDRI:
     def __init__(self,μ=0.5,ϵ=1e-7,p=1,m=7,dim=(256,256),CR=0.03,verbose=True):
@@ -159,7 +159,7 @@ class DFDRI:
                 A=A0[prm,:]
                 ntst-=1
                 coef=np.linalg.inv(DIFF(A).T).sum(axis=1)
-                stdnew=(DIFF(coef.reshape((1,-1)),ax=1)**2).sum()
+                stdnew=(DIFF(coef.reshape((1,-1)),right=1)**2).sum()
                 if stdnew<stdbest: # select the matrix giving the most uniform distribution 
                     stdbest=stdnew
                     Abest=np.array(A)
