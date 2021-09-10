@@ -28,3 +28,5 @@ Basic features of D-FDRI are:
 ![Image reconstruction at CR=20%](reconstr_2.0proc.jpg?raw=true "D-FDRI image reconstruction at CR=2%")
 ![Image reconstruction at CR=20%](reconstr_20.0proc.jpg?raw=true "D-FDRI image reconstruction at CR=20%")
  
+**As an example we also show the 128x128 pixel cameraman image sampled at CR=8% (m=9,p=1,μ=0.5,ϵ=1e-7):**
+![128x128 image reconstruction at CR=8%]( reconstr_cameraman128x128_8proc.jpg?raw=true "D-FDRI 128x128 image reconstruction at CR=8%")
