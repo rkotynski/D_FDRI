@@ -4,7 +4,7 @@ A. Pastuszczak, R. Stojek, P. Wróbel, and R. Kotyński, Aug 2021, https://githu
 
 **Single pixel imaging (SPI)** is an indirect image aquisition technique which enables to capture an image using a single detector rather than with a usual camera containing a pixel array and sophisticated imaging optics. SPI is especially usefull for multispectral imaging, or imaging in the IR or THz ranges, imaging through scattering media etc. Usually image reconstruction from the indirect measurement is computationally intensive. It is ofnen based on the methods of compressive sensing (CS).
 
-**D-FDRI** is an acronym for **Differential Fourier Domain Regularized Inversion**,  https://10.1364/OE.433199, (For non-differential FDRI see also https://doi.org/10.1364/OE.26.020009).
+**D-FDRI** is an acronym for **Differential Fourier Domain Regularized Inversion**,  https://10.1364/OE.433199, (For non-differential FDRI see also https://doi.org/10.1364/OE.26.020009 Note that D-FDRI makes use of FDRI internally but includes a number of modifications concerning both the sampling patterns and the image reconstruction method. D-FDRI and FDRI perform comparably well in a noise-free situation, but D-FDRI has a better noise robustness. It has also other experimental advantages - the reconstructed image is insensitive  to a constant additive bias of the detector and the measured signal has a more uniform distribution so it may be aquired even with a low bit-resolution DAQ using AC-coupling).
 
 The  <code>dfdri</code> Python module is in the file <code>dfdri.py</code>, while example.py is an example showing how to use  <code>dfdri</code> for generating binary patterns, as well as how to reconstruct the image from a compressive measurement using <code>dfdri</code>. The measurement and reconstruction matrices may be easily saved to a ".mat" file and later used with other software, such as Matlab or Octave.
 
@@ -19,7 +19,7 @@ Basic features of D-FDRI are:
 
 **Citation:** <em>A. Pastuszczak, R. Stojek, P. Wróbel, and R. Kotyński, "Differential real-time single-pixel imaging with Fourier domain regularization: applications to VIS-IR imaging and polarization imaging," Opt. Express 29, 26685-26700 (2021).  
  https://doi.org/10.1364/OE.433199 (open access)  
-**Download:** https://github.com/rkotynski/D_FDRI/  
+**Download:** https://github.com/rkotynski/D_FDRI/  (GNU license)
 **Contact:** apast@igf.fuw.edu.pl, rafalk@fuw.edu.pl  
 **Acknowledgement:** National Science Center (Poland), UMO-2017/27/B/ST7/00885 (RS,PW,RK), UMO-2019/35/D/ST7/03781 (AP).  
  
